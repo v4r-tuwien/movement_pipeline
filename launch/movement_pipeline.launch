@@ -1,0 +1,5 @@
+<launch>
+    <node pkg="movement_pipeline" name="movement_statemachine" type="statemachine.py"
+    output="screen">
+    </node>
+</launch>
