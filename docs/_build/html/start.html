@@ -89,92 +89,98 @@
              
   <section id="starting-the-movement-pipeline">
 <h1>Starting the Movement Pipeline<a class="headerlink" href="#starting-the-movement-pipeline" title="Permalink to this heading"></a></h1>
-<p>This section is going to explain how to start the HSR and how create a new map. Afterwards the implemented functions of the movement pipeline are going to be explained.</p>
-<p>The movement pipeline currently exists of two major parts:
-#. RQT Reconfigure for the joint movement
-#. The statemachine for the general movement of the HSR</p>
+<p>This section is going to explain how to start the HSR and how create a new map. Afterwards the implemented functions of the movement
+pipeline are going to be explained.</p>
+<p>The movement pipeline currently consits of:</p>
+<ul class="simple">
+<li><p>RQT Reconfigure for the joint movement</p></li>
+<li><p>The statemachine for the general movement of the HSR</p></li>
+</ul>
 <section id="starting-the-hsr">
 <h2>Starting the HSR<a class="headerlink" href="#starting-the-hsr" title="Permalink to this heading"></a></h2>
-<p>Before creating a map and running the movement pipeline, the robot needs to be started by turning on the power switch on the HSR and then pressing power button on. Afterwards the robot can be started by releasing the emergeny stop button.
-You know that the HSR started properly when the robot says “Sasha start” and moves its head and arm to an initial position.</p>
+<p>Before creating a map and running the movement pipeline, the robot needs to be started by turning on the power switch on the HSR and then
+pressing power button on. Afterwards the robot can be started by releasing the emergeny stop button.</p>
+<p>You know that the HSR started properly when the robot says “Sasha start” and moves its head and arm to an initial position.</p>
 <p>Afterwards you can connect to the robot via ssh using the following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>ssh<span class="w"> </span>v4r@hsrb.local
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ssh<span class="w"> </span>v4r@hsrb.local
 </pre></div>
 </div>
 <p>Ask other team members for the password.</p>
 <section id="creating-and-saving-a-new-map">
 <h3>Creating and Saving a new Map<a class="headerlink" href="#creating-and-saving-a-new-map" title="Permalink to this heading"></a></h3>
-<p>The HSR uses waypoint inside the movement pipeline, which is why a map is needed. In case a map has already been created and the HSR is booting up correctly with this map, this step can be skipped.</p>
+<p>The HSR uses waypoint inside the movement pipeline, which is why a map is needed. In case a map has already been created and the HSR is booting up
+correctly with this map, this step can be skipped.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>When creating a new map, make sure the robot starts the map creation at the current map origin. Otherwise the map origin will shift and implmeneted waypoints might not work correctly.
+<p>When creating a new map, make sure the robot starts the map creation at the current map origin. Otherwise the map origin will shift and
+implmeneted waypoints might not work correctly.
 Additionally be aware that the robot is not able to detect obstacles when driving manually using RQT.</p>
 </div>
-<p>The HSR uses SLAM to create a map. To start the SLAM, please refer to chapter 7.3 Maps of the <a class="reference external" href="https://www.hsr.io/">HSR Development Manual</a>. If you do not have an HSR gitlab account, ask other team members for their help.</p>
+<p>The HSR uses SLAM to create a map. To start the SLAM, please refer to chapter 7.3 Maps of the <a class="reference external" href="https://www.hsr.io/">HSR Development Manual</a>. If you do not have an HSR gitlab
+account, ask other team members for their help.</p>
 <p>When saving a new map, the map should be saved in the following directory:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>/etc/opt/tmc/robot/conf.d/maps
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>/etc/opt/tmc/robot/conf.d/maps
 </pre></div>
 </div>
-<p>When saving a new map, please move the files <cite>map.pgm</cite> and <cite>map.yaml</cite> to a new directory inside of</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>/etc/opt/tmc/robot/conf.d/maps/old_maps/NEW_DIRECTORY
+<p>Please move the files <cite>map.pgm</cite> and <cite>map.yaml</cite> to a new directory inside of</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>/etc/opt/tmc/robot/conf.d/maps/old_maps/NEW_DIRECTORY
 </pre></div>
 </div>
 <p>Use a fitting directory name in case someone needs to retrieve the old map. Afterwards add a changelog to</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>/etc/opt/tmc/robot/docker.hsrb.user
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>/etc/opt/tmc/robot/docker.hsrb.user
 </pre></div>
 </div>
 <p>about the new map (this is also so that the next user knows which map is currently being used).</p>
-<p>Restarting the HSR should now load the new map. This can be checked by starting RViz. This can be done by running</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>rv
+<p>Restarting the HSR should now load the new map. This can be checked by starting RViz using</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>rv
 </pre></div>
 </div>
 <p>inside the docker container, mentioned in the installation guide of the <a class="reference external" href="https://github.com/v4r-tuwien/grasping_pipeline.git">grasping pipeline</a>.</p>
 </section>
 <section id="using-the-new-map">
 <h3>Using the new Map<a class="headerlink" href="#using-the-new-map" title="Permalink to this heading"></a></h3>
-<p>When connected to the HSR via ssh, the robot can be aligned using the following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>v4r@hsrb:<span class="w"> </span>startup
+<p>When connected to the HSR via ssh, the robot can be aligned using:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">v4r@hsrb $  </span>startup
 </pre></div>
 </div>
 <p>The robot should then start moving its head until it finds a marker on the wall and align the map accordingly.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>In order for the alignment to work, the robot needs to have a marker somewhere around him. If new markers are needed, their positions needs to be added to the python file</p>
-<blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/startup_ws/src/align_rviz/src/tf_broadcaster.py
+<p>In order for the alignment to work, the robot needs to have a marker somewhere around him. If new markers are needed, their positions needs to be added
+to the python file</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">v4r@hsrb $ </span>~/startup_ws/src/align_rviz/src/tf_broadcaster.py
 </pre></div>
 </div>
 <p>which is saved on the HSR.</p>
 <p>If you need help retrieving the position of new markers, you can use the file</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/grasp_and_place/src/object_recognition/src/tf_calculator.py
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">v4r@hsrb $ </span>~/grasp_and_place/src/object_recognition/src/tf_calculator.py
 </pre></div>
 </div>
 <p>or ask other team members for help.</p>
-</div></blockquote>
 </div>
 </section>
 </section>
 <section id="starting-the-rqt-reconfigure">
 <h2>Starting the RQT Reconfigure<a class="headerlink" href="#starting-the-rqt-reconfigure" title="Permalink to this heading"></a></h2>
 <p>The RQT Reconfigure is used to control the joint movement of the HSR. To start the RQT Reconfigure, run the following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>/path/to/your/catkin_ws/src/movement_pipeline/src
-$<span class="w"> </span>python3<span class="w"> </span>joint_movement.py
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>/path/to/your/catkin_ws/src/movement_pipeline/src
+<span class="gp">$ </span>python3<span class="w"> </span>joint_movement.py
 </pre></div>
 </div>
 <p>In the docker container you can now start the RQT Reconfigure by running:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>rqt
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>rqt
 </pre></div>
 </div>
 <p>Opening <cite>Running</cite> -&gt; <cite>Dynamic Reconfigure</cite> you should now be able to change the joint positions of the HSR using the <cite>joint_movement_node</cite> tab.
 Additional configurations can be added in</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>/path/to/your/catkin_ws/src/movement_pipeline/cfg/JointMovement.cfg
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>/path/to/your/catkin_ws/src/movement_pipeline/cfg/JointMovement.cfg
 </pre></div>
 </div>
 </section>
 <section id="starting-the-movement-statemachine">
 <h2>Starting the Movement statemachine<a class="headerlink" href="#starting-the-movement-statemachine" title="Permalink to this heading"></a></h2>
 <p>The statemachine can be started by running the following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>roslaunch<span class="w"> </span>movement_pipeline<span class="w"> </span>movement_pipeline.launch
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>roslaunch<span class="w"> </span>movement_pipeline<span class="w"> </span>movement_pipeline.launch
 </pre></div>
 </div>
 <p>You should then be able to let the HSR drive around the office using inputs in the terminal.</p>
