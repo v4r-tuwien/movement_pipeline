@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Starting the Movement Pipeline &#8212; movement_pipeline  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=b3ba4146"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Overview of the Statemachine" href="overview.html" />
+    <link rel="prev" title="Installation" href="install.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="starting-the-movement-pipeline">
+<h1>Starting the Movement Pipeline<a class="headerlink" href="#starting-the-movement-pipeline" title="Permalink to this heading">¶</a></h1>
+<p>This section is going to explain how to start the HSR and how create a new map. Afterwards the implemented functions of the movement pipeline are going to be explained.</p>
+<p>The movement pipeline currently exists of two major parts:
+#. RQT Reconfigure for the joint movement
+#. The statemachine for the general movement of the HSR</p>
+<section id="starting-the-hsr">
+<h2>Starting the HSR<a class="headerlink" href="#starting-the-hsr" title="Permalink to this heading">¶</a></h2>
+<p>Before creating a map and running the movement pipeline, the robot needs to be started by turning on the power switch on the HSR and then pressing power button on. Afterwards the robot can be started by releasing the emergeny stop button.
+You know that the HSR started properly when the robot says “Sasha start” and moves its head and arm to an initial position.</p>
+<p>Afterwards you can connect to the robot via ssh using the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>ssh<span class="w"> </span>v4r@hsrb.local
+</pre></div>
+</div>
+<p>Ask other team members for the password.</p>
+<section id="creating-and-saving-a-new-map">
+<h3>Creating and Saving a new Map<a class="headerlink" href="#creating-and-saving-a-new-map" title="Permalink to this heading">¶</a></h3>
+<p>The HSR uses waypoint inside the movement pipeline, which is why a map is needed. In case a map has already been created and the HSR is booting up correctly with this map, this step can be skipped.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>When creating a new map, make sure the robot starts the map creation at the current map origin. Otherwise the map origin will shift and implmeneted waypoints might not work correctly.
+Additionally be aware that the robot is not able to detect obstacles when driving manually using RQT.</p>
+</div>
+<p>The HSR uses SLAM to create a map. To start the SLAM, please refer to chapter 7.3 Maps of the <a class="reference external" href="https://www.hsr.io/">HSR Development Manual</a>. If you do not have an HSR gitlab account, ask other team members for their help.</p>
+<p>When saving a new map, the map should be saved in the following directory:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>/etc/opt/tmc/robot/conf.d/maps
+</pre></div>
+</div>
+<p>When saving a new map, please move the files <cite>map.pgm</cite> and <cite>map.yaml</cite> to a new directory inside of</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>/etc/opt/tmc/robot/conf.d/maps/old_maps/NEW_DIRECTORY
+</pre></div>
+</div>
+<p>Use a fitting directory name in case someone needs to retrieve the old map. Afterwards add a changelog to</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>/etc/opt/tmc/robot/docker.hsrb.user
+</pre></div>
+</div>
+<p>about the new map (this is also so that the next user knows which map is currently being used).</p>
+<p>Restarting the HSR should now load the new map. This can be checked by starting RViz. This can be done by running</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>rv
+</pre></div>
+</div>
+<p>inside the docker container, mentioned in the installation guide of the <a class="reference external" href="https://github.com/v4r-tuwien/grasping_pipeline.git">grasping pipeline</a>.</p>
+</section>
+<section id="using-the-new-map">
+<h3>Using the new Map<a class="headerlink" href="#using-the-new-map" title="Permalink to this heading">¶</a></h3>
+<p>When connected to the HSR via ssh, the robot can be aligned using the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>v4r@hsrb:<span class="w"> </span>startup
+</pre></div>
+</div>
+<p>The robot should then start moving its head until it finds a marker on the wall and align the map accordingly.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In order for the alignment to work, the robot needs to have a marker somewhere around him. If new markers are needed, their positions needs to be added to the python file</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/startup_ws/src/align_rviz/src/tf_broadcaster.py
+</pre></div>
+</div>
+<p>which is saved on the HSR.</p>
+<p>If you need help retrieving the position of new markers, you can use the file</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/grasp_and_place/src/object_recognition/src/tf_calculator.py
+</pre></div>
+</div>
+<p>or ask other team members for help.</p>
+</div></blockquote>
+</div>
+</section>
+</section>
+<section id="starting-the-rqt-reconfigure">
+<h2>Starting the RQT Reconfigure<a class="headerlink" href="#starting-the-rqt-reconfigure" title="Permalink to this heading">¶</a></h2>
+<p>The RQT Reconfigure is used to control the joint movement of the HSR. To start the RQT Reconfigure, run the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>/path/to/your/catkin_ws/src/movement_pipeline/src
+$<span class="w"> </span>python3<span class="w"> </span>joint_movement.py
+</pre></div>
+</div>
+<p>In the docker container you can now start the RQT Reconfigure by running:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>rqt
+</pre></div>
+</div>
+<p>Opening <cite>Running</cite> -&gt; <cite>Dynamic Reconfigure</cite> you should now be able to change the joint positions of the HSR using the <cite>joint_movement_node</cite> tab.
+Additional configurations can be added in</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>/path/to/your/catkin_ws/src/movement_pipeline/cfg/JointMovement.cfg
+</pre></div>
+</div>
+</section>
+<section id="starting-the-movement-statemachine">
+<h2>Starting the Movement statemachine<a class="headerlink" href="#starting-the-movement-statemachine" title="Permalink to this heading">¶</a></h2>
+<p>The statemachine can be started by running the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>roslaunch<span class="w"> </span>movement_pipeline<span class="w"> </span>movement_pipeline.launch
+</pre></div>
+</div>
+<p>You should then be able to let the HSR drive around the office using inputs in the terminal.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">movement_pipeline</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Starting the Movement Pipeline</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#starting-the-hsr">Starting the HSR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#starting-the-rqt-reconfigure">Starting the RQT Reconfigure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#starting-the-movement-statemachine">Starting the Movement statemachine</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview of the Statemachine</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="install.html" title="previous chapter">Installation</a></li>
+      <li>Next: <a href="overview.html" title="next chapter">Overview of the Statemachine</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2024, Daniel Zimmer.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/start.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
